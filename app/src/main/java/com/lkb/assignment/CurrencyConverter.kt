@@ -5,8 +5,6 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 
 class CurrencyConverter {
-    //TODO use the database to store and update the rate
-    //TODO with timestamp
     var rateINRtoAED = 0.057
     var rateAEDtoINR = 17.1
     var rateINRtoSAR = 0.058

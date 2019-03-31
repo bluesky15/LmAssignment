@@ -1,17 +1,24 @@
 package com.lkb.assignment.lmassignment
 
+import com.lkb.assignment.ProductActivity
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
 
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+@RunWith(RobolectricTestRunner::class)
+class ProductActivityTest{
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun checking_activity_is_not_null() {
+        val activity = Robolectric.setupActivity(ProductActivity::class.java!!)
+       assertTrue(activity!=null)
     }
+
 }
