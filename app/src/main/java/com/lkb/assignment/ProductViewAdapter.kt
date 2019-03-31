@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.lkb.assignment.model.Product
 
-class MyAdapter : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+class ProductViewAdapter : RecyclerView.Adapter<ProductViewAdapter.MyViewHolder>() {
     private var productData = listOf<Product>()
 
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -21,7 +21,7 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): MyAdapter.MyViewHolder {
+    ): ProductViewAdapter.MyViewHolder {
 
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.recycler_item, parent, false)
@@ -46,7 +46,7 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
         }
 
         holder.itemDesc.text = productData[position].name
-        ImageLoader.loadImage(holder.itemImage, productData[position].url)
+        ImageLoaderUtil.loadImage(holder.itemImage, productData[position].url)
     }
 
     override fun getItemCount() = productData.size

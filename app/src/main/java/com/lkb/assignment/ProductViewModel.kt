@@ -8,7 +8,7 @@ import io.reactivex.Observable
 
 class ProductViewModel : ViewModel() {
     private val lmService by lazy {
-        LmService.create()
+        NetworkApiProvider.create()
     }
     var responseModel: Observable<ResponseModel>? = null
     /**

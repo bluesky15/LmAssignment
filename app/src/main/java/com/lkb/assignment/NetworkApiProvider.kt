@@ -7,7 +7,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
-interface LmService {
+interface NetworkApiProvider {
     @GET("/common/json/assignment.json")
     fun retrieveData(): Observable<ResponseModel>
 
@@ -15,7 +15,7 @@ interface LmService {
         private const val BASE_URL =
             "http://a2b7cf8676394fda75de-6e0550a16cd96615f7274fd70fa77109.r93.cf3.rackcdn.com"
 
-        fun create(): LmService {
+        fun create(): NetworkApiProvider {
 
             val retrofit = Retrofit.Builder()
                 .addCallAdapterFactory(
@@ -27,7 +27,7 @@ interface LmService {
                 .baseUrl(BASE_URL)
                 .build()
 
-            return retrofit.create(LmService::class.java)
+            return retrofit.create(NetworkApiProvider::class.java)
         }
     }
 }

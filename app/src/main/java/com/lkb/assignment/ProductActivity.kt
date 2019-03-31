@@ -68,7 +68,7 @@ class ProductActivity : AppCompatActivity() {
      */
     private fun initRecyclerView() {
         viewManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        viewAdapter = MyAdapter()
+        viewAdapter = ProductViewAdapter()
 
         (recyclerView as RecyclerView).apply {
             setHasFixedSize(true)
@@ -100,7 +100,7 @@ class ProductActivity : AppCompatActivity() {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { res -> (viewAdapter as ProductViewAdapter).loadData(res) },
                         { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
                     )
                 DisposableManager.add(d)
@@ -123,7 +123,7 @@ class ProductActivity : AppCompatActivity() {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { res -> (viewAdapter as ProductViewAdapter).loadData(res) },
                         { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
                     )
                 DisposableManager.add(d)
@@ -146,7 +146,7 @@ class ProductActivity : AppCompatActivity() {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { res -> (viewAdapter as ProductViewAdapter).loadData(res) },
                         { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
                     )
                 DisposableManager.add(d)
@@ -171,7 +171,7 @@ class ProductActivity : AppCompatActivity() {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                            { res -> (viewAdapter as MyAdapter).loadData(res) },
+                            { res -> (viewAdapter as ProductViewAdapter).loadData(res) },
                             { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
                         )
                     DisposableManager.add(d)
