@@ -2,19 +2,12 @@ package com.lkb.assignment
 
 import android.graphics.Color
 import android.os.Bundle
-import android.text.Html
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.lkb.assignment.model.Product
 import com.lkb.assignment.model.ResponseModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -34,89 +27,169 @@ class ProductActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //setting default button
-        selectedCurrency = btnINR
-        selectedCurrency.setTextColor(Color.WHITE)
-        selectedCurrency.setBackgroundResource(R.drawable.button_style)
-
+        //setting the default currency as INR
+        setDefaultCurrency()
         currencyConverter = CurrencyConverter()
 
-        viewManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        viewAdapter = MyAdapter(selectedCurrency.text.toString())
-
-        (recyclerView as RecyclerView).apply {
-            setHasFixedSize(true)
-            layoutManager = viewManager
-            adapter = viewAdapter
-        }
+        intRecyclerView()
 
         btnINR.setOnClickListener {
             updateBtnStyle(it as Button)
-            val disposable = productViewModel.refreshProductData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ r ->
-                    currencyConverter.updateCurrRate(r.conversion)
-                    toInr(r.products)
-                }, { err ->
-                    Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
-                })
-            DisposableManager.add(disposable)
+            changePriceToInr()
         }
+
         btnAED.setOnClickListener {
             updateBtnStyle(it as Button)
-            val disposable = productViewModel.refreshProductData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ r ->
-                    currencyConverter.updateCurrRate(r.conversion)
-                    toAed(r.products)
-                }, { err ->
-                    Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
-                })
-            DisposableManager.add(disposable)
+            changePriceToAed()
 
         }
+
         btnSAR.setOnClickListener {
             updateBtnStyle(it as Button)
-            val disposable = productViewModel.refreshProductData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ r ->
-                    currencyConverter.updateCurrRate(r.conversion)
-                    toSar(r.products)
-                }, { err ->
-                    Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
-                })
-            DisposableManager.add(disposable)
+            changePriceToSar()
         }
     }
 
     override fun onStart() {
         super.onStart()
         productViewModel = ViewModelProviders.of(this).get(ProductViewModel::class.java)
-        val disposable = productViewModel.callProductApi()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result ->
-                    updateUi(result)
-                    toInr(result.products)
-                },
-                { error -> Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show() }
-            )
-        DisposableManager.add(disposable)
+        loadInitData()
     }
 
-    private fun updateUi(result: ResponseModel?) {
-        tvProductTitle.text = result?.title
-    }
 
     override fun onDestroy() {
         super.onDestroy()
         DisposableManager.dispose()
     }
 
+    /**
+     * Method to initialize the RecyclerView
+     */
+    private fun intRecyclerView() {
+        viewManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        viewAdapter = MyAdapter()
+
+        (recyclerView as RecyclerView).apply {
+            setHasFixedSize(true)
+            layoutManager = viewManager
+            adapter = viewAdapter
+        }
+    }
+
+    /*
+    Method to set the Default currency
+     */
+    private fun setDefaultCurrency() {
+        //setting default button
+        selectedCurrency = btnINR
+        selectedCurrency.setTextColor(Color.WHITE)
+        selectedCurrency.setBackgroundResource(R.drawable.button_style)
+    }
+
+    /**
+     * Method to change the price to SAR
+     * Long running operation are shifted to the RxJava scheduler
+     */
+    private fun changePriceToSar() {
+        val disposable = productViewModel.refreshProductData()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ r ->
+                val d = productViewModel.toSar(r.products, currencyConverter, r.conversion)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
+                    )
+                DisposableManager.add(d)
+            }, { err ->
+                Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
+            })
+        DisposableManager.add(disposable)
+    }
+
+    /**
+     * Method to change the price to AED
+     * Long running operation are shifted to the RxJava scheduler
+     */
+    private fun changePriceToAed() {
+        val disposable = productViewModel.refreshProductData()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ r ->
+                val d = productViewModel.toAed(r.products, currencyConverter, r.conversion)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
+                    )
+                DisposableManager.add(d)
+            }, { err ->
+                Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
+            })
+        DisposableManager.add(disposable)
+    }
+
+    /**
+     * Method to change the Price to INR
+     * Long running operation are shifted to the RxJava scheduler
+     */
+    private fun changePriceToInr() {
+        val disposable = productViewModel.refreshProductData()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ r ->
+                val d = productViewModel.toInr(r.products, currencyConverter, r.conversion)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { res -> (viewAdapter as MyAdapter).loadData(res) },
+                        { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
+                    )
+                DisposableManager.add(d)
+            }, { err ->
+                Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
+            })
+        DisposableManager.add(disposable)
+    }
+
+    /**
+     * Method to load the Initial data
+     * Long running operation are shifted to the RxJava scheduler
+     */
+    private fun loadInitData() {
+        val disposable = productViewModel.callProductApi()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result ->
+                    updateUi(result)
+                    val d = productViewModel.toInr(result.products, currencyConverter, result.conversion)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            { res -> (viewAdapter as MyAdapter).loadData(res) },
+                            { err -> Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show() }
+                        )
+                    DisposableManager.add(d)
+                },
+                { error -> Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show() }
+            )
+        DisposableManager.add(disposable)
+    }
+
+    /**
+     * Method to set the Title
+     */
+    private fun updateUi(result: ResponseModel?) {
+        tvProductTitle.text = result?.title
+    }
+
+    /**
+     * Method to update button style
+     */
     private fun updateBtnStyle(btn: Button) {
         resetBtnStyle()
         selectedCurrency = btn
@@ -124,98 +197,12 @@ class ProductActivity : AppCompatActivity() {
         selectedCurrency.setBackgroundResource(R.drawable.button_style)
     }
 
+    /**
+     * Reset the button Style
+     */
     private fun resetBtnStyle() {
         selectedCurrency.setTextColor(Color.BLACK)
         selectedCurrency.setBackgroundResource(R.drawable.btn_style_normal)
-    }
-
-
-    private fun toSar(pdata: List<Product>) {
-        for (index in 0..(pdata.size - 1)) {
-            if (pdata[index].currency.contains("INR")) {
-                pdata[index].price = currencyConverter.convertINRtoSAR(pdata[index].price.toDouble())!!
-                pdata[index].currency = "SAR"
-            } else if (pdata[index].currency.contains("AED")) {
-                pdata[index].price = currencyConverter.convertAEDtoSAR(pdata[index].price.toDouble())!!
-                pdata[index].currency = "SAR"
-            }
-        }
-        (viewAdapter as MyAdapter).loadData(pdata)
-    }
-
-    private fun toAed(pdata: List<Product>) {
-        for (index in 0..(pdata.size - 1)) {
-            if (pdata[index].currency.contains("INR")) {
-                pdata[index].price = currencyConverter.convertINRtoAED(pdata[index].price.toDouble())!!
-                pdata[index].currency = "AED"
-            } else if (pdata[index].currency.contains("SAR")) {
-                pdata[index].price = currencyConverter.convertSARtoAED(pdata[index].price.toDouble())!!
-                pdata[index].currency = "AED"
-            }
-        }
-        (viewAdapter as MyAdapter).loadData(pdata)
-    }
-
-    private fun toInr(pdata: List<Product>) {
-        for (index in 0..(pdata.size - 1)) {
-            if (pdata[index].currency.contains("AED")) {
-                pdata[index].price = currencyConverter.convertAEDtoINR(pdata[index].price.toDouble())!!
-                pdata[index].currency = "INR"
-            } else if (pdata[index].currency.contains("SAR")) {
-                pdata[index].price = currencyConverter.convertSARtoINR(pdata[index].price.toDouble())!!
-                pdata[index].currency = "INR"
-            }
-        }
-        (viewAdapter as MyAdapter).loadData(pdata)
-    }
-
-}
-
-class MyAdapter(val selectedCurr: String) : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
-    private var productData = listOf<Product>()
-
-    inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val itemPrice: TextView = view.findViewById(R.id.tvItemPrice)
-        val itemDesc: TextView = view.findViewById(R.id.tvItemDesc)
-        val itemImage: ImageView = view.findViewById(R.id.ivItemImage)
-    }
-
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): MyAdapter.MyViewHolder {
-
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.recycler_item, parent, false)
-
-        return MyViewHolder(view)
-    }
-
-
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        if (productData[position].currency.contains("INR")) {
-            holder.itemPrice.text = Html.fromHtml(
-                "&#x20B9; " +
-                        productData[position].price
-                , Html.FROM_HTML_MODE_LEGACY
-            )
-        } else {
-            holder.itemPrice.text = Html.fromHtml(
-                productData[position].currency + " " +
-                        productData[position].price
-                , Html.FROM_HTML_MODE_LEGACY
-            )
-        }
-
-        holder.itemDesc.text = productData[position].name
-        ImageLoader.loadImage(holder.itemImage, productData[position].url)
-    }
-
-    override fun getItemCount() = productData.size
-
-    fun loadData(data: List<Product>?) {
-        this.productData = data!!
-        notifyDataSetChanged()
     }
 
 }

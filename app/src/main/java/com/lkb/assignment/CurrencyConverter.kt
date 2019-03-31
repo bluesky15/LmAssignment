@@ -49,6 +49,10 @@ class CurrencyConverter {
         return df
     }
 
+    /**
+     * Method to update current Currency conversion rate
+     * which is coming from network
+     */
     fun updateCurrRate(rates: List<Conversion>) {
         for (index in 0..(rates.size - 1)) {
             when {
