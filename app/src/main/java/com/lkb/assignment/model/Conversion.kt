@@ -1,4 +1,4 @@
-package com.lkb.assignment
+package com.lkb.assignment.model
 
 data class Conversion(
         val from: String,

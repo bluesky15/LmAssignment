@@ -1,5 +1,6 @@
 package com.lkb.assignment
 
+import com.lkb.assignment.model.ResponseModel
 import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory

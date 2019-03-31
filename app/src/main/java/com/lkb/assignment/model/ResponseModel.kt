@@ -1,4 +1,4 @@
-package com.lkb.assignment
+package com.lkb.assignment.model
 
 data class ResponseModel(
         val conversion: List<Conversion>,
