@@ -55,7 +55,10 @@ class ProductActivity : AppCompatActivity() {
             val disposable = productViewModel.refreshProductData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { r -> toInr(r.products) }
+                .subscribe { r ->
+                    currencyConverter.updateCurrRate(r.conversion)
+                    toInr(r.products)
+                }
             DisposableManager.add(disposable)
         }
         btnAED.setOnClickListener {
@@ -63,7 +66,10 @@ class ProductActivity : AppCompatActivity() {
             val disposable = productViewModel.refreshProductData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { r -> toAed(r.products) }
+                .subscribe { r ->
+                    currencyConverter.updateCurrRate(r.conversion)
+                    toAed(r.products)
+                }
             DisposableManager.add(disposable)
 
         }
@@ -72,7 +78,10 @@ class ProductActivity : AppCompatActivity() {
             val disposable = productViewModel.refreshProductData()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { r -> toSar(r.products) }
+                .subscribe { r ->
+                    currencyConverter.updateCurrRate(r.conversion)
+                    toSar(r.products)
+                }
             DisposableManager.add(disposable)
         }
     }
