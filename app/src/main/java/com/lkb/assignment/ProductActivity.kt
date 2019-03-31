@@ -29,21 +29,22 @@ class ProductActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //setting the default currency as INR
         setDefaultCurrency()
+        // init the CurrencyConverter
         currencyConverter = CurrencyConverter()
 
-        intRecyclerView()
-
+        initRecyclerView()
+        //click listener for INR button
         btnINR.setOnClickListener {
             updateBtnStyle(it as Button)
             changePriceToInr()
         }
-
+        //click listener for AED button
         btnAED.setOnClickListener {
             updateBtnStyle(it as Button)
             changePriceToAed()
 
         }
-
+        //click listener for SAR button
         btnSAR.setOnClickListener {
             updateBtnStyle(it as Button)
             changePriceToSar()
@@ -65,7 +66,7 @@ class ProductActivity : AppCompatActivity() {
     /**
      * Method to initialize the RecyclerView
      */
-    private fun intRecyclerView() {
+    private fun initRecyclerView() {
         viewManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         viewAdapter = MyAdapter()
 
